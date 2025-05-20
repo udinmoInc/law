@@ -38,7 +38,7 @@ function App() {
 
             {/* Main Content */}
             <main className="flex-1 min-w-0 md:ml-[275px] md:mr-[350px]">
-              <div className="max-w-[600px] mx-auto border-x border-gray-100">
+              <div className="w-[600px] border-x border-gray-100">
                 <Routes>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/login" element={<LoginPage />} />
