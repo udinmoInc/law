@@ -20,51 +20,39 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <div className="min-h-screen bg-white">
-          {/* Top Navigation - Mobile Only */}
-          <div className="md:hidden">
-            <Navbar />
-          </div>
-
+        <div className="min-h-screen bg-gray-50">
+          <Navbar />
+          
           {/* Main Layout */}
-          <div className="flex min-h-screen">
-            {/* Left Sidebar - Hidden on mobile */}
-            <div className="hidden md:block w-[275px] fixed top-0 left-0 h-screen border-r border-gray-100 bg-white overflow-y-auto">
-              <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm p-4">
-                <h1 className="text-xl font-bold text-gray-900">SocialApp</h1>
+          <div className="pt-12 md:pt-14">
+            {/* Desktop 3-Column Layout */}
+            <div className="container mx-auto flex">
+              {/* Left Sidebar - Hidden on mobile */}
+              <div className="hidden md:block w-64 fixed top-14 bottom-0 left-0 overflow-y-auto border-r border-gray-200 bg-white">
+                <Sidebar />
               </div>
-              <Sidebar />
-            </div>
 
-            {/* Main Content */}
-            <main className="flex-1 min-w-0 md:ml-[275px] md:mr-[350px]">
-              <div className="max-w-[600px] mx-auto border-x border-gray-100">
-                <Routes>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/register" element={<RegisterPage />} />
-                  <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="/create" element={<CreatePostPage />} />
-                  <Route path="/groups" element={<GroupsPage />} />
-                  <Route path="/post/:id" element={<PostPage />} />
-                  <Route path="/explore" element={<ExplorePage />} />
-                  <Route path="/notifications" element={<NotificationsPage />} />
-                </Routes>
-              </div>
-            </main>
-
-            {/* Right Sidebar - Hidden on mobile */}
-            <div className="hidden md:block w-[350px] fixed top-0 right-0 h-screen bg-white overflow-y-auto">
-              <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm p-4">
-                <div className="relative">
-                  <input
-                    type="search"
-                    placeholder="Search"
-                    className="w-full bg-gray-100 border border-transparent rounded-full py-2.5 px-4 focus:bg-white focus:border-gray-200 focus:outline-none text-sm"
-                  />
+              {/* Main Content */}
+              <main className="w-full md:ml-64 md:mr-72 px-4">
+                <div className="max-w-2xl mx-auto">
+                  <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/create" element={<CreatePostPage />} />
+                    <Route path="/groups" element={<GroupsPage />} />
+                    <Route path="/post/:id" element={<PostPage />} />
+                    <Route path="/explore" element={<ExplorePage />} />
+                    <Route path="/notifications" element={<NotificationsPage />} />
+                  </Routes>
                 </div>
+              </main>
+
+              {/* Right Sidebar - Hidden on mobile */}
+              <div className="hidden md:block w-72 fixed top-14 bottom-0 right-0 overflow-y-auto border-l border-gray-200 bg-white">
+                <TrendingSidebar />
               </div>
-              <TrendingSidebar />
             </div>
           </div>
 
