@@ -21,38 +21,52 @@ function App() {
     <Router>
       <AuthProvider>
         <div className="min-h-screen bg-gray-50">
-          <Navbar />
-          
+          {/* Top Navigation - Mobile Only */}
+          <div className="md:hidden">
+            <Navbar />
+          </div>
+
           {/* Main Layout */}
-          <div className="pt-12 md:pt-14">
-            {/* Desktop 3-Column Layout */}
-            <div className="container mx-auto flex">
-              {/* Left Sidebar - Hidden on mobile */}
-              <div className="hidden md:block w-64 fixed top-14 bottom-0 left-0 overflow-y-auto border-r border-gray-200 bg-white">
-                <Sidebar />
+          <div className="flex min-h-screen">
+            {/* Left Sidebar - Hidden on mobile */}
+            <div className="hidden md:block w-64 fixed top-0 left-0 h-screen border-r border-gray-200 bg-white overflow-y-auto">
+              <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-200 p-4">
+                <h1 className="text-xl font-bold text-blue-500">SocialApp</h1>
               </div>
+              <Sidebar />
+            </div>
 
-              {/* Main Content */}
-              <main className="w-full md:ml-64 md:mr-72 px-4">
-                <div className="max-w-2xl mx-auto">
-                  <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
-                    <Route path="/profile" element={<ProfilePage />} />
-                    <Route path="/create" element={<CreatePostPage />} />
-                    <Route path="/groups" element={<GroupsPage />} />
-                    <Route path="/post/:id" element={<PostPage />} />
-                    <Route path="/explore" element={<ExplorePage />} />
-                    <Route path="/notifications" element={<NotificationsPage />} />
-                  </Routes>
+            {/* Main Content */}
+            <main className="flex-1 min-w-0 md:ml-64 md:mr-80">
+              <div className="max-w-2xl mx-auto">
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/create" element={<CreatePostPage />} />
+                  <Route path="/groups" element={<GroupsPage />} />
+                  <Route path="/post/:id" element={<PostPage />} />
+                  <Route path="/explore" element={<ExplorePage />} />
+                  <Route path="/notifications" element={<NotificationsPage />} />
+                </Routes>
+              </div>
+            </main>
+
+            {/* Right Sidebar - Hidden on mobile */}
+            <div className="hidden md:block w-80 fixed top-0 right-0 h-screen border-l border-gray-200 bg-white overflow-y-auto">
+              <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm">
+                <div className="p-4 border-b border-gray-200">
+                  <div className="relative">
+                    <input
+                      type="search"
+                      placeholder="Search"
+                      className="w-full bg-gray-100 border border-transparent rounded-full py-2 px-4 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
                 </div>
-              </main>
-
-              {/* Right Sidebar - Hidden on mobile */}
-              <div className="hidden md:block w-72 fixed top-14 bottom-0 right-0 overflow-y-auto border-l border-gray-200 bg-white">
-                <TrendingSidebar />
               </div>
+              <TrendingSidebar />
             </div>
           </div>
 

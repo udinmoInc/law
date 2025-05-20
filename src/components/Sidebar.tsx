@@ -7,11 +7,10 @@ import {
   Bell,
   Mail,
   Bookmark,
-  Briefcase,
   Users,
   User,
   PenSquare,
-  Menu,
+  Settings,
   LogIn
 } from 'lucide-react';
 
@@ -19,36 +18,25 @@ const Sidebar: React.FC = () => {
   const { user } = useAuth();
   const location = useLocation();
 
-  const publicNavigationItems = [
+  const navigationItems = [
     { icon: Home, label: 'Home', path: '/' },
     { icon: Search, label: 'Explore', path: '/explore' },
-    { icon: Users, label: 'Communities', path: '/communities' },
-  ];
-
-  const privateNavigationItems = [
     { icon: Bell, label: 'Notifications', path: '/notifications' },
     { icon: Mail, label: 'Messages', path: '/messages' },
     { icon: Bookmark, label: 'Bookmarks', path: '/bookmarks' },
-    { icon: Briefcase, label: 'Jobs', path: '/jobs' },
+    { icon: Users, label: 'Communities', path: '/groups' },
     { icon: User, label: 'Profile', path: '/profile' },
+    { icon: Settings, label: 'Settings', path: '/settings' },
   ];
-
-  const navigationItems = user ? [...publicNavigationItems, ...privateNavigationItems] : publicNavigationItems;
 
   return (
     <div className="h-full flex flex-col justify-between p-4">
-      <div className="space-y-2">
-        {/* Mobile Menu Button */}
-        <button className="md:hidden p-2 hover:bg-gray-100 rounded-full">
-          <Menu size={24} />
-        </button>
-
-        {/* Navigation Items */}
+      <div className="space-y-1">
         {navigationItems.map((item) => (
           <Link
             key={item.path}
             to={item.path}
-            className={`flex items-center gap-4 p-3 rounded-full hover:bg-gray-100 transition-colors ${
+            className={`flex items-center gap-4 p-3 rounded-full transition-colors hover:bg-gray-100 ${
               location.pathname === item.path ? 'font-bold' : ''
             }`}
           >
@@ -57,7 +45,6 @@ const Sidebar: React.FC = () => {
           </Link>
         ))}
 
-        {/* Post/Login Button */}
         {user ? (
           <button className="w-full mt-4 bg-blue-500 text-white rounded-full py-3 px-6 font-bold hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
             <PenSquare size={20} />
@@ -74,9 +61,8 @@ const Sidebar: React.FC = () => {
         )}
       </div>
 
-      {/* User Profile */}
       {user && (
-        <div className="mt-auto pt-4 border-t border-gray-100">
+        <div className="mt-auto pt-4 border-t border-gray-200">
           <Link
             to="/profile"
             className="flex items-center gap-3 p-3 rounded-full hover:bg-gray-100 transition-colors"
