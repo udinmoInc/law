@@ -44,7 +44,7 @@ function App() {
     <Router>
       <AuthProvider>
         <motion.div 
-          className="min-h-screen bg-gray-50"
+          className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100"
           initial="hidden"
           animate="visible"
           variants={containerVariants}
@@ -59,7 +59,7 @@ function App() {
                   className="hidden md:block w-64 sticky top-14 h-[calc(100vh-3.5rem)]"
                   variants={sidebarVariants}
                 >
-                  <div className="bg-white rounded-xl border border-gray-200 h-full overflow-y-auto">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200/60 shadow-sm h-full overflow-y-auto">
                     <Sidebar />
                   </div>
                 </motion.div>
@@ -82,12 +82,12 @@ function App() {
                   </AnimatePresence>
                 </main>
 
-                {/* Right Sidebar - Hidden on mobile */}
+                {/* Right Sidebar - Hidden on mobile and medium screens */}
                 <motion.div 
-                  className="hidden md:block w-72 sticky top-14 h-[calc(100vh-3.5rem)]"
+                  className="hidden lg:block w-72 sticky top-14 h-[calc(100vh-3.5rem)]"
                   variants={sidebarVariants}
                 >
-                  <div className="bg-white rounded-xl border border-gray-200 h-full overflow-y-auto">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200/60 shadow-sm h-full overflow-y-auto">
                     <TrendingSidebar />
                   </div>
                 </motion.div>
