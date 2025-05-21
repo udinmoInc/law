@@ -1,7 +1,7 @@
 import { GraphQLClient } from 'graphql-request';
 
 const hygraphClient = new GraphQLClient(
-  `${import.meta.env.VITE_HYGRAPH_API_URL}/graphql`,
+  'https://management-ap-south-1.hygraph.com/graphql',
   {
     headers: {
       Authorization: `Bearer ${import.meta.env.VITE_HYGRAPH_AUTH_TOKEN}`,
