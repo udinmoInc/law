@@ -6,9 +6,10 @@ import toast from 'react-hot-toast';
 
 interface CreatePostFormProps {
   onPostCreated: () => void;
+  selectedGroup?: string | null;
 }
 
-const CreatePostForm: React.FC<CreatePostFormProps> = ({ onPostCreated }) => {
+const CreatePostForm: React.FC<CreatePostFormProps> = ({ onPostCreated, selectedGroup }) => {
   const { user } = useAuth();
   const [content, setContent] = useState('');
   const [imageUrl, setImageUrl] = useState('');
@@ -35,6 +36,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onPostCreated }) => {
           user_id: user.id,
           content: content.trim(),
           image_url: imageUrl.trim() || null,
+          group_id: selectedGroup || null,
         },
       ]);
 
@@ -59,7 +61,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onPostCreated }) => {
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="What's on your mind?"
+          placeholder={selectedGroup ? "Share something with your group..." : "What's on your mind?"}
           className="w-full px-0 py-2 bg-transparent border-0 resize-none placeholder:text-gray-500 focus:ring-0 text-sm"
           rows={2}
           disabled={isSubmitting}

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Image, MapPin, BarChart2 } from 'lucide-react';
 import CreatePostForm from './CreatePostForm';
 import PostCard from './PostCard';
-import { supabase, type Post } from '../lib/supabase';
+import { supabase, type Post, type Group } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -12,10 +12,33 @@ const MainFeed: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [showPostTools, setShowPostTools] = useState(false);
+  const [userGroups, setUserGroups] = useState<Group[]>([]);
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPosts();
-  }, [activeTab]);
+    if (user) {
+      fetchUserGroups();
+    }
+  }, [activeTab, selectedGroup]);
+
+  const fetchUserGroups = async () => {
+    if (!user) return;
+    try {
+      const { data: groupMembers, error: groupError } = await supabase
+        .from('group_members')
+        .select('groups(*)')
+        .eq('user_id', user.id);
+
+      if (groupError) throw groupError;
+
+      const groups = groupMembers?.map(member => member.groups) || [];
+      setUserGroups(groups);
+    } catch (error) {
+      console.error('Error fetching user groups:', error);
+      toast.error('Failed to load groups');
+    }
+  };
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -25,14 +48,25 @@ const MainFeed: React.FC = () => {
         .select(`
           *,
           profiles (*),
+          groups (*),
           likes_count: likes(count),
           comments_count: comments(count)
           ${user ? ', user_has_liked: likes!inner(user_id)' : ''}
         `)
         .order('created_at', { ascending: false });
 
-      if (activeTab === 'following' && user) {
-        // Add following filter logic here
+      if (selectedGroup) {
+        query = query.eq('group_id', selectedGroup);
+      } else if (activeTab === 'following' && user) {
+        const { data: following } = await supabase
+          .from('followers')
+          .select('following_id')
+          .eq('follower_id', user.id);
+
+        const followingIds = following?.map(f => f.following_id) || [];
+        if (followingIds.length > 0) {
+          query = query.in('user_id', followingIds);
+        }
       }
 
       const { data: postsData, error: postsError } = await query;
@@ -60,16 +94,22 @@ const MainFeed: React.FC = () => {
       {/* Feed Tabs */}
       <div className="flex border-b border-gray-100 bg-white">
         <button
-          onClick={() => setActiveTab('for-you')}
+          onClick={() => {
+            setActiveTab('for-you');
+            setSelectedGroup(null);
+          }}
           className={`flex-1 py-3 text-center font-medium text-sm hover:bg-gray-50 transition-colors ${
-            activeTab === 'for-you' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-600'
+            activeTab === 'for-you' && !selectedGroup ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-600'
           }`}
         >
           For You
         </button>
         {user && (
           <button
-            onClick={() => setActiveTab('following')}
+            onClick={() => {
+              setActiveTab('following');
+              setSelectedGroup(null);
+            }}
             className={`flex-1 py-3 text-center font-medium text-sm hover:bg-gray-50 transition-colors ${
               activeTab === 'following' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-600'
             }`}
@@ -78,7 +118,10 @@ const MainFeed: React.FC = () => {
           </button>
         )}
         <button
-          onClick={() => setActiveTab('nearby')}
+          onClick={() => {
+            setActiveTab('nearby');
+            setSelectedGroup(null);
+          }}
           className={`flex-1 py-3 text-center font-medium text-sm hover:bg-gray-50 transition-colors ${
             activeTab === 'nearby' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-600'
           }`}
@@ -87,10 +130,28 @@ const MainFeed: React.FC = () => {
         </button>
       </div>
 
+      {/* Group Selection */}
+      {user && userGroups.length > 0 && (
+        <div className="px-4 py-2 border-b border-gray-100 bg-gray-50">
+          <select
+            value={selectedGroup || ''}
+            onChange={(e) => setSelectedGroup(e.target.value || null)}
+            className="w-full p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">All Posts</option>
+            {userGroups.map((group) => (
+              <option key={group.id} value={group.id}>
+                {group.title}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {/* Post Creation */}
       {user && (
         <div className="px-4 py-3 border-b border-gray-100 bg-white">
-          <CreatePostForm onPostCreated={fetchPosts} />
+          <CreatePostForm onPostCreated={fetchPosts} selectedGroup={selectedGroup} />
           {showPostTools && (
             <div className="flex gap-4 mt-3 overflow-x-auto pb-2 scrollbar-hide">
               <button className="flex items-center gap-2 text-blue-500 hover:text-blue-600 transition-colors whitespace-nowrap">
