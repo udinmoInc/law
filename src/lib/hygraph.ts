@@ -1,43 +1,40 @@
 import { GraphQLClient } from 'graphql-request';
 
 const hygraphClient = new GraphQLClient(
-  import.meta.env.VITE_HYGRAPH_API_URL as string,
+  `${import.meta.env.VITE_HYGRAPH_API_URL}/graphql`,
   {
     headers: {
       Authorization: `Bearer ${import.meta.env.VITE_HYGRAPH_AUTH_TOKEN}`,
+      'Content-Type': 'multipart/form-data',
     },
   }
 );
 
 export const uploadImage = async (file: File) => {
   try {
-    // Get upload URL from Hygraph using the correct mutation
-    const { uploadUrl } = await hygraphClient.request(
-      `mutation GetUploadUrl {
-        uploadUrl: createAssetUploadUrl
-      }`
-    );
-
-    // Upload file to the URL
-    const form = new FormData();
-    form.append('fileUpload', file);
-
-    const upload = await fetch(uploadUrl.url, {
-      method: 'POST',
-      body: form,
-    });
-
-    if (!upload.ok) throw new Error('Upload failed');
-
-    // Publish the asset
-    const { publishAsset } = await hygraphClient.request(
-      `mutation PublishAsset($id: ID!) {
-        publishAsset(where: { id: $id }) {
+    // Create the asset using the correct mutation
+    const { createAsset } = await hygraphClient.request(
+      `mutation CreateAsset($file: Upload!) {
+        createAsset(data: { file: $file }) {
           id
           url
         }
       }`,
-      { id: uploadUrl.id }
+      { file }
+    );
+
+    // Publish the asset with the correct arguments
+    const { publishAsset } = await hygraphClient.request(
+      `mutation PublishAsset($id: ID!) {
+        publishAsset(
+          where: { id: $id }
+          to: PUBLISHED
+        ) {
+          id
+          url
+        }
+      }`,
+      { id: createAsset.id }
     );
 
     return publishAsset.url;
