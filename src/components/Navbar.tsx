@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ChevronDown } from 'lucide-react';
 import SearchBar from './SearchBar';
+import NotificationPanel from './NotificationPanel';
 
 const Navbar: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -22,7 +23,9 @@ const Navbar: React.FC = () => {
         </div>
 
         {/* Right Navigation */}
-        <div className="flex items-center">
+        <div className="flex items-center space-x-4">
+          {user && <NotificationPanel />}
+          
           {user ? (
             <div className="relative">
               <button
