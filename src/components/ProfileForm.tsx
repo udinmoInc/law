@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase, type Profile } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import { Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const ProfileForm: React.FC = () => {
@@ -10,6 +11,7 @@ const ProfileForm: React.FC = () => {
   const [fullName, setFullName] = useState('');
   const [bio, setBio] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
+  const [isPrivate, setIsPrivate] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -37,6 +39,7 @@ const ProfileForm: React.FC = () => {
       setFullName(data.full_name || '');
       setBio(data.bio || '');
       setAvatarUrl(data.avatar_url || '');
+      setIsPrivate(data.is_private || false);
     } catch (error: any) {
       console.error('Error fetching profile:', error);
       toast.error('Failed to load profile');
@@ -56,6 +59,7 @@ const ProfileForm: React.FC = () => {
         full_name: fullName,
         bio,
         avatar_url: avatarUrl,
+        is_private: isPrivate,
         updated_at: new Date().toISOString(),
       };
 
@@ -148,6 +152,20 @@ const ProfileForm: React.FC = () => {
               </div>
             </div>
           )}
+
+          <div className="flex items-center gap-2">
+            <input
+              id="isPrivate"
+              type="checkbox"
+              checked={isPrivate}
+              onChange={(e) => setIsPrivate(e.target.checked)}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <label htmlFor="isPrivate" className="flex items-center gap-2 text-sm text-gray-700">
+              <Lock size={16} />
+              Make my profile private
+            </label>
+          </div>
 
           <div className="pt-4">
             <button
