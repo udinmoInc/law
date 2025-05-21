@@ -11,10 +11,10 @@ const hygraphClient = new GraphQLClient(
 
 export const uploadImage = async (file: File) => {
   try {
-    // Get upload URL from Hygraph
-    const { uploadUrl, assetId } = await hygraphClient.request(
+    // Get upload URL from Hygraph using the correct mutation
+    const { uploadUrl } = await hygraphClient.request(
       `mutation GetUploadUrl {
-        uploadUrl: createUploadUrl
+        uploadUrl: createAssetUploadUrl
       }`
     );
 
@@ -22,7 +22,7 @@ export const uploadImage = async (file: File) => {
     const form = new FormData();
     form.append('fileUpload', file);
 
-    const upload = await fetch(uploadUrl, {
+    const upload = await fetch(uploadUrl.url, {
       method: 'POST',
       body: form,
     });
@@ -37,7 +37,7 @@ export const uploadImage = async (file: File) => {
           url
         }
       }`,
-      { id: assetId }
+      { id: uploadUrl.id }
     );
 
     return publishAsset.url;
