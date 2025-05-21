@@ -16,7 +16,7 @@ interface SuggestionProps {
 
 const MentionList = React.forwardRef((props: SuggestionProps, ref: React.Ref<HTMLDivElement>) => {
   return (
-    <div ref={ref} className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+    <div ref={ref} className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden min-w-[200px]">
       {props.items.length ? (
         props.items.map((item, index) => (
           <button
@@ -56,7 +56,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   minHeight = '100px',
 }) => {
   const getSuggestions = useCallback(async (query: string) => {
-    if (!query || query.length < 2) return [];
+    if (!query) return [];
     
     const { data, error } = await supabase
       .from('profiles')
@@ -92,7 +92,11 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           return `@${node.attrs.label || node.attrs.id}`;
         },
         suggestion: {
-          items: async ({ query }) => getSuggestions(query),
+          char: '@',
+          allowSpaces: false,
+          items: async ({ query }) => {
+            return await getSuggestions(query);
+          },
           render: () => {
             let component: any;
             let popup: any;
@@ -100,6 +104,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             return {
               onStart: (props) => {
                 component = new MentionList(props);
+                if (!props.clientRect) {
+                  return;
+                }
+
                 popup = tippy('body', {
                   getReferenceClientRect: props.clientRect,
                   appendTo: () => document.body,
@@ -112,6 +120,11 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
               },
               onUpdate: (props) => {
                 component.updateProps(props);
+
+                if (!props.clientRect) {
+                  return;
+                }
+
                 popup[0].setProps({
                   getReferenceClientRect: props.clientRect,
                 });
@@ -121,6 +134,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                   popup[0].hide();
                   return true;
                 }
+
                 return component.onKeyDown(props);
               },
               onExit: () => {
