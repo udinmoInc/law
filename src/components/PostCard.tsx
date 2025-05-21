@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { Heart, MessageCircle, Share2, MoreHorizontal, Link as LinkIcon, Twitter, Facebook } from 'lucide-react';
+import { Heart, MessageCircle, Share2, MoreHorizontal, Link as LinkIcon, Twitter, Facebook, Users } from 'lucide-react';
 import { supabase, type Post, type Comment, type Profile } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
@@ -174,9 +174,18 @@ const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdate }) => {
             <p className="font-medium text-sm text-gray-900">
               {post.profiles?.full_name || post.profiles?.username}
             </p>
-            <p className="text-xs text-gray-500">
-              {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
-            </p>
+            <div className="flex items-center text-xs text-gray-500">
+              <span>{formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}</span>
+              {post.groups && (
+                <>
+                  <span className="mx-1">•</span>
+                  <Link to={`/groups/${post.groups.id}`} className="flex items-center text-blue-500 hover:text-blue-600">
+                    <Users size={12} className="mr-1" />
+                    {post.groups.title}
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
         <button className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100">
