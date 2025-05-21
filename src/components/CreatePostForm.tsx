@@ -31,14 +31,14 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onPostCreated, selected
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.from('posts').insert([
+      const { data, error } = await supabase.from('posts').insert([
         {
           user_id: user.id,
           content: content.trim(),
           image_url: imageUrl.trim() || null,
           group_id: selectedGroup || null,
         },
-      ]);
+      ]).select();
 
       if (error) throw error;
 
