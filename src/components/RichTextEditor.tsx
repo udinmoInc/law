@@ -14,15 +14,15 @@ interface SuggestionProps {
   command: (item: Profile) => void;
 }
 
-const MentionList = ({ items, command, query }: SuggestionProps) => {
+const MentionList = React.forwardRef((props: SuggestionProps, ref: React.Ref<HTMLDivElement>) => {
   return (
-    <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-      {items.length ? (
-        items.map((item, index) => (
+    <div ref={ref} className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+      {props.items.length ? (
+        props.items.map((item, index) => (
           <button
             key={index}
             className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center space-x-2"
-            onClick={() => command(item)}
+            onClick={() => props.command(item)}
           >
             <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold">
               {item.username.charAt(0).toUpperCase()}
@@ -38,7 +38,9 @@ const MentionList = ({ items, command, query }: SuggestionProps) => {
       )}
     </div>
   );
-};
+});
+
+MentionList.displayName = 'MentionList';
 
 interface RichTextEditorProps {
   content?: string;
@@ -85,6 +87,9 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       Mention.configure({
         HTMLAttributes: {
           class: 'mention',
+        },
+        renderLabel({ options, node }) {
+          return `@${node.attrs.label || node.attrs.id}`;
         },
         suggestion: {
           items: async ({ query }) => getSuggestions(query),
@@ -148,6 +153,11 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         .mention {
           color: #3b82f6;
           font-weight: 500;
+          background-color: #eff6ff;
+          padding: 0.125rem 0.25rem;
+          border-radius: 0.25rem;
+          text-decoration: none;
+          cursor: pointer;
         }
         .ProseMirror {
           min-height: ${minHeight};
