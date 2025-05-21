@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import { Bell, Heart, MessageSquare, User, Users } from 'lucide-react';
+import { Bell, Heart, MessageSquare, User, Users, AlertCircle, RefreshCw } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -18,6 +18,32 @@ const NotificationsPage: React.FC = () => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchNotifications = async () => {
+    if (!user) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const { data, error: supabaseError } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (supabaseError) throw supabaseError;
+
+      setNotifications(data || []);
+    } catch (error: any) {
+      console.error('Error fetching notifications:', error);
+      setError(error.message || 'Failed to load notifications');
+      toast.error('Failed to load notifications. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -25,27 +51,6 @@ const NotificationsPage: React.FC = () => {
       subscribeToNotifications();
     }
   }, [user]);
-
-  const fetchNotifications = async () => {
-    if (!user) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      setNotifications(data || []);
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-      toast.error('Failed to load notifications');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const subscribeToNotifications = () => {
     if (!user) return;
@@ -90,6 +95,7 @@ const NotificationsPage: React.FC = () => {
       );
     } catch (error) {
       console.error('Error marking notification as read:', error);
+      toast.error('Failed to mark notification as read');
     }
   };
 
@@ -174,8 +180,28 @@ const NotificationsPage: React.FC = () => {
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8">
-        <div className="flex justify-center">
+        <div className="flex flex-col items-center justify-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          <p className="mt-4 text-gray-600">Loading notifications...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-8">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto" />
+          <h3 className="mt-4 text-lg font-medium text-red-800">Failed to load notifications</h3>
+          <p className="mt-2 text-red-600">{error}</p>
+          <button
+            onClick={() => fetchNotifications()}
+            className="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Try Again
+          </button>
         </div>
       </div>
     );
@@ -183,7 +209,16 @@ const NotificationsPage: React.FC = () => {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Notifications</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
+        <button
+          onClick={() => fetchNotifications()}
+          className="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          <RefreshCw className="h-4 w-4 mr-1" />
+          Refresh
+        </button>
+      </div>
 
       {notifications.length > 0 ? (
         <div className="space-y-4">
@@ -193,8 +228,8 @@ const NotificationsPage: React.FC = () => {
               to={getNotificationLink(notification)}
               className={`block p-4 rounded-lg border transition-colors ${
                 notification.is_read 
-                  ? 'bg-white border-gray-200' 
-                  : 'bg-blue-50 border-blue-200'
+                  ? 'bg-white border-gray-200 hover:bg-gray-50' 
+                  : 'bg-blue-50 border-blue-200 hover:bg-blue-100'
               }`}
               onClick={() => markAsRead(notification.id)}
             >
