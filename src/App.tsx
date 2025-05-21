@@ -52,42 +52,44 @@ function App() {
           <Navbar />
           
           <div className="pt-12 md:pt-14">
-            <div className="container mx-auto max-w-7xl">
-              <div className="flex">
+            <div className="container mx-auto max-w-6xl px-4">
+              <div className="flex gap-6">
                 {/* Left Sidebar - Hidden on mobile */}
                 <motion.div 
-                  className="hidden md:block w-64 fixed top-14 bottom-0 left-0 overflow-y-auto border-r border-gray-200 bg-white ml-4"
+                  className="hidden md:block w-64 sticky top-14 h-[calc(100vh-3.5rem)]"
                   variants={sidebarVariants}
                 >
-                  <Sidebar />
+                  <div className="bg-white rounded-xl border border-gray-200 h-full overflow-y-auto">
+                    <Sidebar />
+                  </div>
                 </motion.div>
 
                 {/* Main Content */}
-                <main className="w-full md:ml-64 md:mr-72 px-4">
-                  <div className="max-w-2xl mx-auto">
-                    <AnimatePresence mode="wait">
-                      <Routes>
-                        <Route path="/" element={<HomePage />} />
-                        <Route path="/login" element={<LoginPage />} />
-                        <Route path="/register" element={<RegisterPage />} />
-                        <Route path="/profile" element={<ProfilePage />} />
-                        <Route path="/create" element={<CreatePostPage />} />
-                        <Route path="/groups" element={<GroupsPage />} />
-                        <Route path="/post/:id" element={<PostPage />} />
-                        <Route path="/explore" element={<ExplorePage />} />
-                        <Route path="/notifications" element={<NotificationsPage />} />
-                        <Route path="/chat" element={<ChatPage />} />
-                      </Routes>
-                    </AnimatePresence>
-                  </div>
+                <main className="flex-1 min-w-0">
+                  <AnimatePresence mode="wait">
+                    <Routes>
+                      <Route path="/" element={<HomePage />} />
+                      <Route path="/login" element={<LoginPage />} />
+                      <Route path="/register" element={<RegisterPage />} />
+                      <Route path="/profile" element={<ProfilePage />} />
+                      <Route path="/create" element={<CreatePostPage />} />
+                      <Route path="/groups" element={<GroupsPage />} />
+                      <Route path="/post/:id" element={<PostPage />} />
+                      <Route path="/explore" element={<ExplorePage />} />
+                      <Route path="/notifications" element={<NotificationsPage />} />
+                      <Route path="/chat" element={<ChatPage />} />
+                    </Routes>
+                  </AnimatePresence>
                 </main>
 
                 {/* Right Sidebar - Hidden on mobile */}
                 <motion.div 
-                  className="hidden md:block w-72 fixed top-14 bottom-0 right-0 overflow-y-auto border-l border-gray-200 bg-white mr-4"
+                  className="hidden md:block w-72 sticky top-14 h-[calc(100vh-3.5rem)]"
                   variants={sidebarVariants}
                 >
-                  <TrendingSidebar />
+                  <div className="bg-white rounded-xl border border-gray-200 h-full overflow-y-auto">
+                    <TrendingSidebar />
+                  </div>
                 </motion.div>
               </div>
             </div>

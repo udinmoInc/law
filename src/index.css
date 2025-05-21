@@ -105,3 +105,10 @@
 .animate-scale-in {
   animation: scale-in 0.2s ease-out;
 }
+
+/* Custom styles for the layout */
+.container {
+  @apply px-4;
+  max-width: 1200px;
+  margin: 0 auto;
+}
