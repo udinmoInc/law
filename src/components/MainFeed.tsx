@@ -14,13 +14,14 @@ const MainFeed: React.FC = () => {
   const [showPostTools, setShowPostTools] = useState(false);
   const [userGroups, setUserGroups] = useState<Group[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPosts();
     if (user) {
       fetchUserGroups();
     }
-  }, [activeTab, selectedGroup]);
+  }, [activeTab, selectedGroup, user]);
 
   const fetchUserGroups = async () => {
     if (!user) return;
@@ -32,7 +33,7 @@ const MainFeed: React.FC = () => {
 
       if (groupError) throw groupError;
 
-      const groups = groupMembers?.map(member => member.groups) || [];
+      const groups = groupMembers?.map(member => member.groups).filter(Boolean) || [];
       setUserGroups(groups);
     } catch (error) {
       console.error('Error fetching user groups:', error);
@@ -41,8 +42,10 @@ const MainFeed: React.FC = () => {
   };
 
   const fetchPosts = async () => {
-    setLoading(true);
     try {
+      setLoading(true);
+      setError(null);
+
       let query = supabase
         .from('posts')
         .select(`
@@ -80,9 +83,10 @@ const MainFeed: React.FC = () => {
         user_has_liked: user ? (post.user_has_liked?.some((like: any) => like.user_id === user?.id) || false) : false
       }));
 
-      setPosts(processedPosts);
+      setPosts(processedPosts || []);
     } catch (error: any) {
       console.error('Error fetching posts:', error);
+      setError('Failed to load posts');
       toast.error('Failed to load posts');
     } finally {
       setLoading(false);
@@ -176,6 +180,16 @@ const MainFeed: React.FC = () => {
         {loading ? (
           <div className="flex justify-center items-center h-40">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          </div>
+        ) : error ? (
+          <div className="text-center py-10">
+            <p className="text-red-500">{error}</p>
+            <button
+              onClick={fetchPosts}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+            >
+              Try Again
+            </button>
           </div>
         ) : posts.length > 0 ? (
           posts.map((post) => (
