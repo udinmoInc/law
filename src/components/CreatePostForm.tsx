@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import { Image } from 'lucide-react';
+import { Image, X } from 'lucide-react';
+import ImageUpload from './ImageUpload';
 import toast from 'react-hot-toast';
 
 interface CreatePostFormProps {
@@ -14,7 +15,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onPostCreated, selected
   const [content, setContent] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showImageInput, setShowImageInput] = useState(false);
+  const [showImageUpload, setShowImageUpload] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +45,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onPostCreated, selected
 
       setContent('');
       setImageUrl('');
-      setShowImageInput(false);
+      setShowImageUpload(false);
       toast.success('Post created successfully!');
       onPostCreated();
     } catch (error: any) {
@@ -55,43 +56,59 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ onPostCreated, selected
     }
   };
 
+  const handleImageUpload = (url: string) => {
+    setImageUrl(url);
+    setShowImageUpload(false);
+  };
+
   return (
-    <div className="bg-white">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
       <form onSubmit={handleSubmit}>
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder={selectedGroup ? "Share something with your group..." : "What's on your mind?"}
-          className="w-full px-0 py-2 bg-transparent border-0 resize-none placeholder:text-gray-500 focus:ring-0 text-sm"
-          rows={2}
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg resize-none placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm min-h-[100px]"
           disabled={isSubmitting}
         />
 
-        {showImageInput && (
-          <div className="relative mt-2 mb-3">
-            <input
-              type="text"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="Add image URL"
-              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        {imageUrl && (
+          <div className="relative mt-4">
+            <img
+              src={imageUrl}
+              alt="Post preview"
+              className="w-full h-64 object-cover rounded-lg"
             />
-            <Image className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+            <button
+              type="button"
+              onClick={() => setImageUrl('')}
+              className="absolute top-2 right-2 p-1 bg-gray-900/70 text-white rounded-full hover:bg-gray-900"
+            >
+              <X size={16} />
+            </button>
           </div>
         )}
 
-        <div className="flex items-center justify-between mt-2">
+        {showImageUpload && !imageUrl && (
+          <div className="mt-4">
+            <ImageUpload onUpload={handleImageUpload} />
+          </div>
+        )}
+
+        <div className="flex items-center justify-between mt-4">
           <button
             type="button"
-            onClick={() => setShowImageInput(!showImageInput)}
-            className="p-2 text-blue-500 hover:bg-blue-50 rounded-full transition-colors"
+            onClick={() => setShowImageUpload(!showImageUpload)}
+            className={`p-2 rounded-full transition-colors ${
+              showImageUpload ? 'text-blue-500 bg-blue-50' : 'text-gray-500 hover:bg-gray-100'
+            }`}
           >
-            <Image size={18} />
+            <Image size={20} />
           </button>
 
           <button
             type="submit"
-            className="px-4 py-1.5 bg-blue-500 text-white text-sm font-medium rounded-full hover:bg-blue-600 transition-colors disabled:bg-blue-300"
+            className="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-full hover:bg-blue-600 transition-colors disabled:bg-blue-300"
             disabled={isSubmitting || !content.trim()}
           >
             {isSubmitting ? 'Posting...' : 'Post'}
