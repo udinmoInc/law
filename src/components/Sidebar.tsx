@@ -12,7 +12,8 @@ import {
   User,
   PenSquare,
   Menu,
-  LogIn
+  LogIn,
+  MessageSquare
 } from 'lucide-react';
 
 const Sidebar: React.FC = () => {
@@ -27,7 +28,7 @@ const Sidebar: React.FC = () => {
 
   const privateNavigationItems = [
     { icon: Bell, label: 'Notifications', path: '/notifications' },
-    { icon: Mail, label: 'Messages', path: '/messages' },
+    { icon: MessageSquare, label: 'Chat', path: '/chat' },
     { icon: Bookmark, label: 'Bookmarks', path: '/bookmarks' },
     { icon: Briefcase, label: 'Jobs', path: '/jobs' },
     { icon: User, label: 'Profile', path: '/profile' },
@@ -94,5 +95,3 @@ const Sidebar: React.FC = () => {
     </div>
   );
 };
-
-export default Sidebar;

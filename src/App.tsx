@@ -15,6 +15,7 @@ import GroupsPage from './pages/GroupsPage';
 import PostPage from './pages/PostPage';
 import ExplorePage from './pages/ExplorePage';
 import NotificationsPage from './pages/NotificationsPage';
+import ChatPage from './pages/ChatPage';
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
                     <Route path="/post/:id" element={<PostPage />} />
                     <Route path="/explore" element={<ExplorePage />} />
                     <Route path="/notifications" element={<NotificationsPage />} />
+                    <Route path="/chat" element={<ChatPage />} />
                   </Routes>
                 </div>
               </main>
@@ -76,5 +78,3 @@ function App() {
     </Router>
   );
 }
-
-export default App;
