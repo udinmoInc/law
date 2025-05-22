@@ -60,7 +60,7 @@ function App() {
                   className="hidden md:block w-64 sticky top-14 h-[calc(100vh-3.5rem)]"
                   variants={sidebarVariants}
                 >
-                  <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200/60 shadow-sm h-full overflow-y-auto">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200/60 shadow-sm h-full overflow-y-auto scrollbar-hide">
                     <Sidebar />
                   </div>
                 </motion.div>
@@ -89,7 +89,7 @@ function App() {
                   className="hidden lg:block w-72 sticky top-14 h-[calc(100vh-3.5rem)]"
                   variants={sidebarVariants}
                 >
-                  <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200/60 shadow-sm h-full overflow-y-auto">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200/60 shadow-sm h-full overflow-y-auto scrollbar-hide">
                     <TrendingSidebar />
                   </div>
                 </motion.div>

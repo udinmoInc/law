@@ -8,6 +8,7 @@ const PostPage: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [post, setPost] = useState<Post | null>(null);
+  const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,7 +32,6 @@ const PostPage: React.FC = () => {
 
       if (error) {
         if (error.code === 'PGRST116') {
-          // Post not found
           toast.error('Post not found');
           navigate('/');
           return;
@@ -50,7 +50,7 @@ const PostPage: React.FC = () => {
         ...data,
         likes_count: data.likes_count?.[0]?.count || 0,
         comments_count: data.comments_count?.[0]?.count || 0,
-        user_has_liked: false // We'll fetch this separately if user is logged in
+        user_has_liked: false
       };
 
       // If user is authenticated, check if they liked the post
@@ -67,6 +67,31 @@ const PostPage: React.FC = () => {
       }
 
       setPost(processedPost);
+
+      // Fetch related posts by the same user
+      const { data: relatedData, error: relatedError } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          profiles (*),
+          likes_count: likes(count),
+          comments_count: comments(count)
+        `)
+        .eq('user_id', data.user_id)
+        .neq('id', id)
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      if (relatedError) throw relatedError;
+
+      const processedRelatedPosts = relatedData?.map(post => ({
+        ...post,
+        likes_count: post.likes_count?.[0]?.count || 0,
+        comments_count: post.comments_count?.[0]?.count || 0,
+        user_has_liked: false
+      }));
+
+      setRelatedPosts(processedRelatedPosts || []);
     } catch (error: any) {
       console.error('Error fetching post:', error);
       toast.error('Failed to load post');
@@ -100,6 +125,17 @@ const PostPage: React.FC = () => {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 mt-16">
       <PostCard post={post} onPostUpdate={fetchPost} />
+
+      {relatedPosts.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">More from {post.profiles?.username}</h2>
+          <div className="space-y-4">
+            {relatedPosts.map((relatedPost) => (
+              <PostCard key={relatedPost.id} post={relatedPost} onPostUpdate={fetchPost} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
