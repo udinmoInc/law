@@ -13,23 +13,12 @@ export const uploadImage = async (file: File) => {
   try {
     // First get the upload URL and credentials
     const { createAsset } = await hygraphClient.request(
-      `mutation CreateAsset {
+      `mutation createAsset {
         createAsset(data: {}) {
           id
           url
           upload {
             status
-            expiresAt
-            requestPostData {
-              url
-              date
-              key
-              signature
-              algorithm
-              policy
-              credential
-              securityToken
-            }
           }
         }
       }`
@@ -37,36 +26,21 @@ export const uploadImage = async (file: File) => {
 
     // Prepare form data for upload
     const formData = new FormData();
-    const { requestPostData } = createAsset.upload;
-    
-    formData.append('Content-Type', file.type);
-    formData.append('key', requestPostData.key);
-    formData.append('policy', requestPostData.policy);
-    formData.append('x-amz-credential', requestPostData.credential);
-    formData.append('x-amz-algorithm', requestPostData.algorithm);
-    formData.append('x-amz-date', requestPostData.date);
-    formData.append('x-amz-signature', requestPostData.signature);
-    formData.append('x-amz-security-token', requestPostData.securityToken);
-    formData.append('file', file);
+    formData.append('fileUpload', file);
+    formData.append('id', createAsset.id);
 
-    // Upload the file to the provided URL
-    await fetch(requestPostData.url, {
+    // Upload the file
+    const uploadResponse = await fetch(createAsset.upload.url, {
       method: 'POST',
       body: formData,
     });
 
-    // Publish the asset
-    const { publishAsset } = await hygraphClient.request(
-      `mutation PublishAsset($id: ID!) {
-        publishAsset(where: { id: $id }, to: PUBLISHED) {
-          id
-          url
-        }
-      }`,
-      { id: createAsset.id }
-    );
+    if (!uploadResponse.ok) {
+      throw new Error('Failed to upload file');
+    }
 
-    return publishAsset.url;
+    // Return the asset URL
+    return createAsset.url;
   } catch (error) {
     console.error('Error uploading image:', error);
     throw error;
