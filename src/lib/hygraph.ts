@@ -13,25 +13,32 @@ export const uploadImage = async (file: File) => {
   try {
     // First get the upload URL and credentials
     const { createAsset } = await hygraphClient.request(
-      `mutation createAsset {
-        createAsset(data: {}) {
+      `mutation createAsset($fileName: String!) {
+        createAsset(data: { fileName: $fileName }) {
           id
           url
-          upload {
-            status
-          }
+          fileName
+          handle
         }
-      }`
+      }`,
+      {
+        fileName: file.name
+      }
     );
 
     // Prepare form data for upload
     const formData = new FormData();
     formData.append('fileUpload', file);
-    formData.append('id', createAsset.id);
+
+    // Get the upload URL from the API response
+    const uploadUrl = `${import.meta.env.VITE_HYGRAPH_API_URL}/upload`;
 
     // Upload the file
-    const uploadResponse = await fetch(createAsset.upload.url, {
+    const uploadResponse = await fetch(uploadUrl, {
       method: 'POST',
+      headers: {
+        Authorization: `Bearer ${import.meta.env.VITE_HYGRAPH_AUTH_TOKEN}`,
+      },
       body: formData,
     });
 
@@ -39,8 +46,10 @@ export const uploadImage = async (file: File) => {
       throw new Error('Failed to upload file');
     }
 
+    const uploadData = await uploadResponse.json();
+
     // Return the asset URL
-    return createAsset.url;
+    return uploadData.url;
   } catch (error) {
     console.error('Error uploading image:', error);
     throw error;
